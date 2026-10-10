@@ -4,6 +4,7 @@ import Header from './components/Header'
 import JourneyPlanner from './components/JourneyPlanner'
 import SettlementDashboard from './components/SettlementDashboard'
 import PitchDeck from './components/PitchDeck'
+import SmartTab from './components/SmartTab'
 
 // ─── Inner app (needs context) ─────────────────────────────────────────────────
 function AppContent() {
@@ -16,6 +17,7 @@ function AppContent() {
       <main className="flex-1">
         {activeView === 'planner'    && <JourneyPlanner />}
         {activeView === 'settlement' && <SettlementDashboard />}
+        {activeView === 'smart'      && <SmartTab />}
         {activeView === 'pitch'      && <PitchDeck />}
       </main>
 

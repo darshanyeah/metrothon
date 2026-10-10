@@ -2,8 +2,9 @@
 import { useTransit } from '../context/TransitContext'
 
 const NAV_TABS = [
-  { id: 'planner',    label: 'Journey Planner',  icon: '🗺️',  subtitle: 'Citizen Flow'   },
-  { id: 'settlement', label: 'Clearinghouse',    icon: '⚖️',  subtitle: 'Operator Flow'  },
+  { id: 'planner',    label: 'Journey Planner',  icon: '🗺️',  subtitle: 'Citizen Flow'    },
+  { id: 'settlement', label: 'Clearinghouse',    icon: '⚖️',  subtitle: 'Operator Flow'   },
+  { id: 'smart',      label: 'Smart Features',   icon: '✨',  subtitle: 'Differentiators' },
   { id: 'pitch',      label: 'Pitch Deck',       icon: '🏆',  subtitle: 'Judging Showcase' },
 ]
 
