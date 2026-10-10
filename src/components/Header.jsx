@@ -1,7 +1,7 @@
 // src/components/Header.jsx
 import { useTransit } from '../context/TransitContext'
 
-export default function Header() {
+export default function Header({ onStartTour }) {
   const { 
     activeView, 
     setView, 
@@ -78,6 +78,16 @@ export default function Header() {
           {/* Right controls */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Tour Button for Judges & New Users */}
+            <button
+              onClick={onStartTour}
+              title="Start Guided Walkthrough Tour"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-orange-500/50 bg-orange-500/15 text-orange-300 hover:bg-orange-500/25 transition-all shadow-sm shadow-orange-500/10"
+            >
+              <span>🎯</span>
+              <span className="hidden sm:inline">{language === 'gu' ? 'માર્ગદર્શિકા ટૂર' : 'Guided Tour'}</span>
+            </button>
+
             {/* Divyangjan / Accessibility Toggle */}
             <button
               onClick={toggleAccessibility}
@@ -89,7 +99,7 @@ export default function Header() {
               }`}
             >
               <span>♿</span>
-              <span className="hidden md:inline">{accessibilityMode ? 'દિવ્યાંગજન Mode' : 'Accessibility'}</span>
+              <span className="hidden lg:inline">{accessibilityMode ? 'દિવ્યાંગજન Mode' : 'Accessibility'}</span>
             </button>
 
             {/* Language Toggle */}
@@ -125,7 +135,7 @@ export default function Header() {
               }`}
             >
               <span>✈️</span>
-              <span className="hidden sm:inline">{offlineSimulated ? t('status.goOnline') : t('status.airplane')}</span>
+              <span className="hidden lg:inline">{offlineSimulated ? t('status.goOnline') : t('status.airplane')}</span>
             </button>
           </div>
         </div>
