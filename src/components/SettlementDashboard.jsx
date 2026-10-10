@@ -177,7 +177,7 @@ export default function SettlementDashboard() {
       </div>
 
       {/* Settlement simulator + table */}
-      <div className="glass-card overflow-hidden">
+      <div data-tour="tour-settlement-table" className="glass-card overflow-hidden">
         {/* Simulator controls */}
         <div className="px-5 py-4 border-b border-slate-700/50 bg-slate-800/30">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -189,7 +189,7 @@ export default function SettlementDashboard() {
                 Simulates real-time revenue impact when municipal policy incentivizes AMTS/Janmarg last-mile feeders to feed passenger volume into GMRC trunk lines.
               </p>
             </div>
-            <div className="sm:w-64 flex-shrink-0">
+            <div data-tour="tour-feeder-slider" className="sm:w-64 flex-shrink-0">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-slate-400">Feeder Incentive Bonus</span>
                 <span className="text-sm font-bold text-orange-400">{feederDiscount}%</span>

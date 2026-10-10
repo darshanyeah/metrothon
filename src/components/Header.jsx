@@ -19,11 +19,11 @@ export default function Header({ onStartTour }) {
   } = useTransit()
 
   const NAV_TABS = [
-    { id: 'planner',    label: t('nav.planner'),       icon: '🗺️',  subtitle: t('subtitles.citizen')       },
-    { id: 'settlement', label: t('nav.clearinghouse'), icon: '⚖️',  subtitle: t('subtitles.operator')      },
-    { id: 'inspector',  label: t('nav.inspector'),     icon: '🛡️',  subtitle: t('subtitles.inspector')     },
-    { id: 'smart',      label: t('nav.smart'),         icon: '✨',  subtitle: t('subtitles.differentiators')},
-    { id: 'pitch',      label: t('nav.pitch'),         icon: '🏆',  subtitle: t('subtitles.pitch')          },
+    { id: 'planner',    label: t('nav.planner'),       icon: '🗺️',  subtitle: t('subtitles.citizen'),        tourId: 'tour-nav-planner'       },
+    { id: 'settlement', label: t('nav.clearinghouse'), icon: '⚖️',  subtitle: t('subtitles.operator'),       tourId: 'tour-nav-clearinghouse' },
+    { id: 'inspector',  label: t('nav.inspector'),     icon: '🛡️',  subtitle: t('subtitles.inspector'),      tourId: 'tour-nav-inspector'     },
+    { id: 'smart',      label: t('nav.smart'),         icon: '✨',  subtitle: t('subtitles.differentiators'), tourId: 'tour-nav-smart'         },
+    { id: 'pitch',      label: t('nav.pitch'),         icon: '🏆',  subtitle: t('subtitles.pitch'),           tourId: 'tour-nav-pitch'         },
   ]
 
   return (
@@ -80,16 +80,18 @@ export default function Header({ onStartTour }) {
             
             {/* Tour Button for Judges & New Users */}
             <button
+              data-tour="tour-start-btn"
               onClick={onStartTour}
               title="Start Guided Walkthrough Tour"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-orange-500/50 bg-orange-500/15 text-orange-300 hover:bg-orange-500/25 transition-all shadow-sm shadow-orange-500/10"
             >
               <span>🎯</span>
-              <span className="hidden sm:inline">{language === 'gu' ? 'માર્ગદર્શિકા ટૂર' : 'Guided Tour'}</span>
+              <span className="hidden sm:inline">{language === 'gu' ? 'માર્ગદર્શિકા ટૂર' : 'Interactive Demo Tour'}</span>
             </button>
 
             {/* Divyangjan / Accessibility Toggle */}
             <button
+              data-tour="tour-access"
               onClick={toggleAccessibility}
               title="Toggle Divyangjan / Step-Free Accessible Transit Mode"
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
@@ -104,6 +106,7 @@ export default function Header({ onStartTour }) {
 
             {/* Language Toggle */}
             <button
+              data-tour="tour-lang"
               onClick={toggleLanguage}
               title="Switch Language: English / ગુજરાતી"
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-600 transition-all"
@@ -113,11 +116,14 @@ export default function Header({ onStartTour }) {
             </button>
 
             {/* Firebase / network status pill */}
-            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-500 ${
-              effectivelyOnline
-                ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-            }`}>
+            <div 
+              data-tour="tour-status"
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-500 ${
+                effectivelyOnline
+                  ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                  : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+              }`}
+            >
               <span className={`w-1.5 h-1.5 rounded-full ${effectivelyOnline ? 'bg-green-400 animate-pulse' : 'bg-amber-400'}`} />
               {effectivelyOnline
                 ? (firebaseConnected ? t('status.online') : 'Cache Active')
@@ -126,6 +132,7 @@ export default function Header({ onStartTour }) {
 
             {/* Offline simulate toggle */}
             <button
+              data-tour="tour-airplane"
               onClick={toggleOfflineSim}
               title="Simulate network drop for hackathon presentation"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
@@ -147,6 +154,7 @@ export default function Header({ onStartTour }) {
             return (
               <button
                 key={tab.id}
+                data-tour={tab.tourId}
                 onClick={() => setView(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-all duration-200 ${
                   isActive

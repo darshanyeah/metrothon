@@ -114,7 +114,7 @@ function LegCard({ leg, index, isLast, accessibilityMode }) {
 
 function RouteSelector({ routes, selectedRouteId, onSelect }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div data-tour="tour-corridors" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {routes.map((route) => {
         const isSelected = route.id === selectedRouteId
         const modesUsed = [...new Set(route.legs.map((l) => l.mode).filter((m) => m !== 'walk'))]
@@ -242,7 +242,7 @@ export default function JourneyPlanner() {
       {selectedRoute && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-up" key={selectedRoute.id}>
           {/* Left — timeline */}
-          <div className="lg:col-span-2 space-y-4">
+          <div data-tour="tour-timeline" className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                 {t('planner.stepByStep')}
@@ -286,7 +286,7 @@ export default function JourneyPlanner() {
               </h3>
 
               {/* Concession Selection Buttons */}
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl mb-4 border border-slate-800 text-xs">
+              <div data-tour="tour-concession" className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl mb-4 border border-slate-800 text-xs">
                 <button
                   onClick={() => setConcession('standard')}
                   className={`py-1.5 rounded-lg font-medium transition-all ${concessionType === 'standard' ? 'bg-orange-500 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
@@ -308,7 +308,7 @@ export default function JourneyPlanner() {
               </div>
 
               {/* Fare comparison visual */}
-              <div className="space-y-3 mb-5">
+              <div data-tour="tour-fare-bars" className="space-y-3 mb-5">
                 <div>
                   <div className="flex justify-between text-xs text-slate-400 mb-1">
                     <span>❌ {t('planner.unintegratedLabel')}</span>
@@ -358,6 +358,7 @@ export default function JourneyPlanner() {
                 HMAC-SHA256 signed · Valid at all Metro gates, Janmarg turnstiles & AMTS validators.
               </p>
               <button
+                data-tour="tour-pass-btn"
                 onClick={handleBuyTicket}
                 disabled={buying}
                 className="btn-primary w-full animate-pulse-glow disabled:opacity-60 disabled:cursor-not-allowed disabled:animate-none"

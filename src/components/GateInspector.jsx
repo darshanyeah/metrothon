@@ -11,7 +11,6 @@ export default function GateInspector() {
   
   const [selectedGate, setSelectedGate] = useState('GMRC')
   const [stationName, setStationName] = useState('Thaltej Metro - AFC Gate 02')
-  const [manualTicketInput, setManualTicketInput] = useState('')
   const [lastScanResult, setLastScanResult] = useState(null)
   const [scanning, setScanning] = useState(false)
 
@@ -85,7 +84,7 @@ export default function GateInspector() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Gate Configurator */}
-        <div className="glass-card p-5 space-y-4">
+        <div data-tour="tour-gate-terminal" className="glass-card p-5 space-y-4">
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
             1. Select Gate Hardware Terminal
           </h3>
@@ -129,7 +128,7 @@ export default function GateInspector() {
         </div>
 
         {/* Center: Turnstile Scan & Barrier Status */}
-        <div className="glass-card p-5 space-y-4 flex flex-col justify-between">
+        <div data-tour="tour-gate-scanner" className="glass-card p-5 space-y-4 flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
               2. Validate Passenger Ticket
@@ -154,6 +153,7 @@ export default function GateInspector() {
             )}
 
             <button
+              data-tour="tour-gate-tap-btn"
               onClick={() => handleVerify(activeTicket)}
               disabled={!activeTicket || scanning}
               className={`w-full py-3.5 rounded-xl text-sm font-bold shadow-lg transition-all ${
@@ -167,7 +167,7 @@ export default function GateInspector() {
           </div>
 
           {/* Visual Barrier State */}
-          <div className="mt-4 p-4 rounded-xl border bg-slate-950/70 text-center">
+          <div data-tour="tour-gate-barrier" className="mt-4 p-4 rounded-xl border bg-slate-950/70 text-center">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">AFC Flap Barrier Status</p>
             {lastScanResult ? (
               lastScanResult.verified ? (
