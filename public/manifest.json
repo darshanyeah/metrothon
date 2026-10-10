@@ -1,0 +1,12 @@
+{
+  "name": "One City, One Journey",
+  "short_name": "TransitGJ",
+  "description": "Gujarat Multimodal Transit Planner — Metro, BRTS & AMTS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f97316",
+  "icons": [
+    { "src": "/transit-icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
