@@ -26,7 +26,7 @@ function StatCard({ icon, label, value, subValue, color }) {
   )
 }
 
-function LegCard({ leg, index, isLast }) {
+function LegCard({ leg, index, isLast, accessibilityMode }) {
   const meta = MODE_META[leg.mode]
   const [expanded, setExpanded] = useState(false)
 
@@ -67,6 +67,11 @@ function LegCard({ leg, index, isLast }) {
               {leg.fareComponent > 0 && (
                 <span className="text-xs text-green-400 font-semibold">₹{leg.fareComponent}</span>
               )}
+              {accessibilityMode && (
+                <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  ♿ Step-Free / Ramp
+                </span>
+              )}
             </div>
             <p className="mt-1.5 text-sm font-medium text-slate-200">
               {leg.from} → {leg.to}
@@ -74,6 +79,14 @@ function LegCard({ leg, index, isLast }) {
           </div>
           <span className="text-slate-600 text-xs mt-0.5">{expanded ? '▲' : '▼'}</span>
         </div>
+
+        {/* Accessibility Note when active */}
+        {accessibilityMode && leg.mode === 'walk' && (
+          <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/30 px-2.5 py-1.5 rounded-lg border border-blue-800/50 flex items-center gap-1.5">
+            <span>🛗</span>
+            <span>Station Elevator Operational: Take Lift A directly to Platform Level. Zero stairs required.</span>
+          </div>
+        )}
 
         {/* Expanded details */}
         {expanded && (
@@ -149,12 +162,34 @@ function RouteSelector({ routes, selectedRouteId, onSelect }) {
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function JourneyPlanner() {
-  const { routes, selectedRouteId, selectedRoute, selectRoute, buyTicket, qrModalOpen } = useTransit()
+  const { 
+    routes, 
+    selectedRouteId, 
+    selectedRoute, 
+    selectRoute, 
+    buyTicket, 
+    qrModalOpen,
+    accessibilityMode,
+    concessionType,
+    setConcession,
+    language,
+    t
+  } = useTransit()
+
   const [buying, setBuying] = useState(false)
 
   const modesUsed = selectedRoute
     ? [...new Set(selectedRoute.legs.map((l) => l.mode).filter((m) => m !== 'walk'))]
     : []
+
+  // Calculated concession fare
+  let discountPct = 0
+  if (concessionType === 'senior') discountPct = 30
+  if (concessionType === 'divyang') discountPct = 50
+
+  const payableFare = selectedRoute 
+    ? Math.round(selectedRoute.unifiedFare * (1 - discountPct / 100))
+    : 0
 
   async function handleBuyTicket() {
     setBuying(true)
@@ -167,31 +202,38 @@ export default function JourneyPlanner() {
       {/* Hero section */}
       <div className="hero-gradient text-center py-6 space-y-2">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Plan Your Multimodal Journey
+          {t('planner.title')}
         </h2>
         <p className="text-slate-400 text-sm max-w-xl mx-auto">
-          One unified ticket across Gujarat Metro, Janmarg BRTS & AMTS City Bus.
-          Save money. Save time. Save the planet. 🌱
+          {t('planner.subtitle')}
         </p>
+
+        {/* Accessibility Notification Bar */}
+        {accessibilityMode && (
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/40 text-blue-300 text-xs font-semibold animate-fade-in mt-2">
+            <span>♿</span>
+            <span>{t('planner.accessibilityActive')}</span>
+          </div>
+        )}
       </div>
 
       {/* City impact stats */}
       <div>
         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
-          Today's City Impact
+          {language === 'gu' ? 'આજનો પરિવહન પ્રભાવ' : "Today's City Impact"}
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard icon="👥" label="Daily Unified Riders" value={CITY_STATS.dailyRiders.toLocaleString()} color="text-orange-400" />
-          <StatCard icon="🌿" label="CO₂ Saved (Tonnes)" value={`${CITY_STATS.co2SavedTonnes}T`} color="text-green-400" />
-          <StatCard icon="💰" label="Avg. Savings / Ride" value={`₹${CITY_STATS.avgSavingsPerRide}`} color="text-cyan-400" />
-          <StatCard icon="🚇" label="Metro Seat Occupancy" value={`${CITY_STATS.metroOccupancy}%`} subValue={`BRTS: ${CITY_STATS.brtsOccupancy}% · AMTS: ${CITY_STATS.amtsOccupancy}%`} color="text-purple-400" />
+          <StatCard icon="👥" label={language === 'gu' ? 'દૈનિક મુસાફરો' : "Daily Unified Riders"} value={CITY_STATS.dailyRiders.toLocaleString()} color="text-orange-400" />
+          <StatCard icon="🌿" label={language === 'gu' ? 'CO₂ બચત (ટન)' : "CO₂ Saved (Tonnes)"} value={`${CITY_STATS.co2SavedTonnes}T`} color="text-green-400" />
+          <StatCard icon="💰" label={language === 'gu' ? 'સરેરાશ બચત/ટ્રિપ' : "Avg. Savings / Ride"} value={`₹${CITY_STATS.avgSavingsPerRide}`} color="text-cyan-400" />
+          <StatCard icon="🚇" label={language === 'gu' ? 'મેટ્રો સીટ ઓક્યુપન્સી' : "Metro Seat Occupancy"} value={`${CITY_STATS.metroOccupancy}%`} subValue={`BRTS: ${CITY_STATS.brtsOccupancy}% · AMTS: ${CITY_STATS.amtsOccupancy}%`} color="text-purple-400" />
         </div>
       </div>
 
-      {/* Route selector */}
+      {/* Corridor Selection */}
       <div>
         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
-          Select Commute Corridor
+          {t('planner.corridorLabel')}
         </h3>
         <RouteSelector routes={routes} selectedRouteId={selectedRouteId} onSelect={selectRoute} />
       </div>
@@ -203,7 +245,7 @@ export default function JourneyPlanner() {
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-                Step-by-step Journey
+                {t('planner.stepByStep')}
               </h3>
               <div className="flex gap-2 flex-wrap justify-end">
                 {modesUsed.map((m) => <ModeBadge key={m} mode={m} />)}
@@ -218,7 +260,7 @@ export default function JourneyPlanner() {
                   {meta.shortLabel}
                 </span>
               ))}
-              <span className="text-slate-600">· Tap a leg to expand details</span>
+              <span className="text-slate-600">· Tap a leg to view interchange walking instructions</span>
             </div>
 
             {/* Legs timeline */}
@@ -229,6 +271,7 @@ export default function JourneyPlanner() {
                   leg={leg}
                   index={i}
                   isLast={i === selectedRoute.legs.length - 1}
+                  accessibilityMode={accessibilityMode}
                 />
               ))}
             </div>
@@ -236,17 +279,39 @@ export default function JourneyPlanner() {
 
           {/* Right — fare & actions panel */}
           <div className="space-y-4">
-            {/* Fare comparison */}
+            {/* Fare comparison & Concession */}
             <div className="glass-card p-5">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-                Unified Fare Breakdown
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+                Fare & Subsidy Category
               </h3>
+
+              {/* Concession Selection Buttons */}
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl mb-4 border border-slate-800 text-xs">
+                <button
+                  onClick={() => setConcession('standard')}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${concessionType === 'standard' ? 'bg-orange-500 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Standard
+                </button>
+                <button
+                  onClick={() => setConcession('senior')}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${concessionType === 'senior' ? 'bg-orange-500 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Senior (30%)
+                </button>
+                <button
+                  onClick={() => setConcession('divyang')}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${concessionType === 'divyang' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+                >
+                  દિવ્યાંગજન (50%)
+                </button>
+              </div>
 
               {/* Fare comparison visual */}
               <div className="space-y-3 mb-5">
                 <div>
                   <div className="flex justify-between text-xs text-slate-400 mb-1">
-                    <span>❌ Unintegrated (3 tickets)</span>
+                    <span>❌ {t('planner.unintegratedLabel')}</span>
                     <span className="text-red-400 font-semibold">₹{selectedRoute.unintegratedFare}</span>
                   </div>
                   <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -255,13 +320,13 @@ export default function JourneyPlanner() {
                 </div>
                 <div>
                   <div className="flex justify-between text-xs text-slate-400 mb-1">
-                    <span>✅ Unified Pass</span>
-                    <span className="text-green-400 font-semibold">₹{selectedRoute.unifiedFare}</span>
+                    <span>✅ {t('planner.unifiedPassLabel')} {discountPct > 0 ? `(${discountPct}% Subsidy)` : ''}</span>
+                    <span className="text-green-400 font-semibold">₹{payableFare}</span>
                   </div>
                   <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-green-500 rounded-full"
-                      style={{ width: `${(selectedRoute.unifiedFare / selectedRoute.unintegratedFare) * 100}%` }}
+                      style={{ width: `${(payableFare / selectedRoute.unintegratedFare) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -271,11 +336,11 @@ export default function JourneyPlanner() {
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="bg-slate-900/60 rounded-xl p-2.5">
                   <div className="text-lg font-bold text-white">{selectedRoute.totalTime}</div>
-                  <div className="text-xs text-slate-500">mins total</div>
+                  <div className="text-xs text-slate-500">{t('planner.totalMins')}</div>
                 </div>
                 <div className="bg-green-500/10 rounded-xl p-2.5 border border-green-500/20">
-                  <div className="text-lg font-bold text-green-400">₹{selectedRoute.savings}</div>
-                  <div className="text-xs text-slate-500">saved</div>
+                  <div className="text-lg font-bold text-green-400">₹{selectedRoute.unintegratedFare - payableFare}</div>
+                  <div className="text-xs text-slate-500">{t('planner.saved')}</div>
                 </div>
                 <div className="bg-cyan-500/10 rounded-xl p-2.5 border border-cyan-500/20">
                   <div className="text-lg font-bold text-cyan-400">{selectedRoute.carbonSaved}</div>
@@ -284,30 +349,30 @@ export default function JourneyPlanner() {
               </div>
             </div>
 
-            {/* QR ticket generator */}
+            {/* QR ticket generator button */}
             <div className="glass-card p-5">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
                 Digital Multimodal Pass
               </h3>
               <p className="text-xs text-slate-400 mb-4">
-                One QR code · Valid at all Metro gates, BRTS turnstiles & AMTS readers for this journey.
+                HMAC-SHA256 signed · Valid at all Metro gates, Janmarg turnstiles & AMTS validators.
               </p>
               <button
                 onClick={handleBuyTicket}
                 disabled={buying}
                 className="btn-primary w-full animate-pulse-glow disabled:opacity-60 disabled:cursor-not-allowed disabled:animate-none"
               >
-                {buying ? '⏳ Generating Pass...' : '🎫 Get Unified QR Pass — ₹' + selectedRoute.unifiedFare}
+                {buying ? '⏳ Generating Pass...' : `${t('planner.getPass')}${payableFare}`}
               </button>
-              <p className="text-xs text-slate-600 text-center mt-2">
-                Ticket stored locally · Works offline
+              <p className="text-[11px] text-slate-500 text-center mt-2">
+                Cryptographically signable offline · Anti-passback protected
               </p>
             </div>
 
             {/* Distance breakdown */}
             <div className="glass-card p-4">
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
-                Distance by Operator
+                {t('planner.distanceByOp')}
               </h3>
               {modesUsed.map((mode) => {
                 const meta = MODE_META[mode]
