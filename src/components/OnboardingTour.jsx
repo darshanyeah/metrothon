@@ -1,7 +1,6 @@
 // src/components/OnboardingTour.jsx
-// Spotlight & Interactive Moving Focus Onboarding Tour
-// Computes real element bounding boxes, places a glowing cutout spotlight,
-// scrolls into view, and anchors a floating guidance tooltip directly beside the target button.
+// Production-grade Spotlight & Interactive Focus Tour
+// Uses SVG Overlay with Mask Cutout + Retrying DOM Locator + Smooth View Transitions
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTransit } from '../context/TransitContext'
@@ -17,7 +16,7 @@ const TOUR_STEPS = [
       gu: 'અમદાવાદ-ગાંધીનગર રૂટ્સ'
     },
     description: {
-      en: 'These cards let commuters pick major corridors like Thaltej → Infocity or Kalupur → GIFT City. Each corridor calculates unified multimodal legs automatically.',
+      en: 'Pick realistic corridors like Thaltej → Infocity or Kalupur → GIFT City. Each corridor combines Metro, BRTS, and AMTS with walking transfers.',
       gu: 'અહીંથી મુસાફર થલતેજ થી ઇન્ફોસિટી કે કાલુપુર થી ગિફ્ટ સિટી જેવા મુખ્ય કોરિડોર પસંદ કરી શકે છે.'
     },
     buttonHint: {
@@ -35,7 +34,7 @@ const TOUR_STEPS = [
       gu: 'દિવ્યાંગજન સુવિધા ટૉગલ'
     },
     description: {
-      en: 'Government judges care deeply about inclusivity. Clicking this button filters the journey for certified elevators, wheelchair ramps, and low-floor accessible buses.',
+      en: 'Inclusivity is a major judging criterion. Clicking this filters routes for working station elevators, wheelchair ramps, and low-floor AMTS buses.',
       gu: 'આ બટન દબાવવાથી રસ્તામાં ચાલુ લિફ્ટ, વ્હીલચેર રેમ્પ અને દિવ્યાંગ અનુકૂળ બસો ફિલ્ટર થઈને દેખાય છે.'
     },
     buttonHint: {
@@ -53,7 +52,7 @@ const TOUR_STEPS = [
       gu: 'સરકારી કન્સેશન અને સબસિડી'
     },
     description: {
-      en: 'Switch between Standard, Senior Citizen (30% off), or Divyangjan (50% state subsidy). The algorithm computes the discount and logs the state subsidy claim.',
+      en: 'Switch between Standard, Senior Citizen (30% off), or Divyangjan (50% state subsidy). The algorithm computes the discount and logs the subsidy claim.',
       gu: 'સીનિયર સિટીઝન (૩૦% છૂટ) અથવા દિવ્યાંગજન (૫૦% સબસિડી) પસંદ કરો. ભાડું આપોઆપ ગણાઈ જશે.'
     },
     buttonHint: {
@@ -71,7 +70,7 @@ const TOUR_STEPS = [
       gu: 'સંકલિત QR પાસ બટન'
     },
     description: {
-      en: 'This is the core citizen action! Clicking this generates ONE digital pass signed with HMAC-SHA256, valid across Gujarat Metro, Janmarg BRTS, and AMTS turnstiles.',
+      en: 'The core citizen action! Issues a single digital pass signed with HMAC-SHA256, valid across Gujarat Metro, Janmarg BRTS, and AMTS turnstiles.',
       gu: 'આ મુખ્ય બટન છે! તેનાથી એક જ ડિજિટલ QR પાસ મળે છે જે મેટ્રો, બીઆરટીએસ અને એએમટીએસ ત્રણેયમાં ચાલે છે.'
     },
     buttonHint: {
@@ -89,7 +88,7 @@ const TOUR_STEPS = [
       gu: 'ફીડર પ્રોત્સાહન સ્લાઇડર'
     },
     description: {
-      en: 'Here is the municipal breakthrough for judges! Drag this slider to see how AMC and GMRC can dynamically adjust feeder bus incentives to maximize metro ridership.',
+      en: 'The municipal breakthrough! Drag this slider to see how AMC and GMRC dynamically adjust feeder bus revenue cuts to maximize metro ridership.',
       gu: 'આ મ્યુનિસિપલ સ્લાઇડરથી મેટ્રો અને બસ વચ્ચેની આવકનું ગતિશીલ વિભાજન લાઈવ બદલાય છે.'
     },
     buttonHint: {
@@ -107,7 +106,7 @@ const TOUR_STEPS = [
       gu: 'સ્ટેશન ગેટ ટેપ-ઇન સિમ્યુલેટર'
     },
     description: {
-      en: 'Judges want to know: "How does it work at an offline gate?" Click this button to simulate scanning a pass at Metro AFC Gate 2. Watch the barrier open, or see Anti-Passback block a double-tap!',
+      en: 'Demonstrates offline gate verification! Click this to simulate a tap at Metro AFC Gate 2. The barrier unlocks, or Anti-Passback blocks duplicate taps.',
       gu: 'મેટ્રો ગેટ પર ટિકિટ ટેપ કરો: ગ્રીન બેરિયર ખુલશે. ફરી ટેપ કરશો તો એન્ટી-પાસબેક સુરક્ષા બ્લોક દેખાશે.'
     },
     buttonHint: {
@@ -125,8 +124,8 @@ const TOUR_STEPS = [
       gu: 'લાઈવ મેપ, ગ્રીન માઇલ્સ અને એઆઈ સલાહકાર'
     },
     description: {
-      en: 'In this tab, judges will see the animated SVG transit map with moving trains, the citizen carbon credit gamification engine, and the live AI departure countdown advisor.',
-      gu: 'આ ટેબમાં સાબરમતી નદી પર ટ્રેનોનો લાઈવ મેપ, ગ્રીન માઇલ્સ લોયલ્ટી અને એઆઈ કાઉન્ટડાઉન ઘડિયાળ છે.'
+      en: 'Shows judges our 3 unique features: the animated Sabarmati river transit map, Green Miles carbon credit loyalty, and the AI countdown departure advisor.',
+      gu: 'સાબરમતી નદી પર ટ્રેનોનો લાઈવ મેપ, ગ્રીન માઇલ્સ લોયલ્ટી અને એઆઈ કાઉન્ટડાઉન ઘડિયાળ જુઓ.'
     },
     buttonHint: {
       en: 'Explore the 3 distinctive innovations that elevate this above simple routing apps.',
@@ -143,7 +142,7 @@ const TOUR_STEPS = [
       gu: 'ઓફલાઇન નેટવર્ક ડ્રોપ સિમ્યુલેટર'
     },
     description: {
-      en: 'The ultimate presentation clincher: Click this airplane mode button anytime during your pitch to prove the app never crashes in underground tunnels, gracefully relying on IndexedDB.',
+      en: 'The clincher: Click this airplane mode button anytime during your pitch to prove the app never crashes when cell connection drops in underground metro tunnels.',
       gu: 'પ્રસ્તુતિ વખતે આ બટન દબાવીને બતાવો કે અંડરગ્રાઉન્ડ ટનલમાં નેટવર્ક વગર પણ ઍપ વિના અડચણ ચાલે છે.'
     },
     buttonHint: {
@@ -157,73 +156,106 @@ export default function OnboardingTour({ isOpen, onClose }) {
   const { setView, language } = useTransit()
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [targetRect, setTargetRect] = useState(null)
-  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0, placement: 'bottom' })
-
-  const updateTargetPosition = useCallback(() => {
-    const step = TOUR_STEPS[currentStepIndex]
-    if (!step) return
-
-    const element = document.querySelector(`[data-tour="${step.targetTourId}"]`)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
-      
-      setTimeout(() => {
-        const rect = element.getBoundingClientRect()
-        setTargetRect({
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
-          right: rect.right,
-          bottom: rect.bottom,
-        })
-
-        const spaceBelow = window.innerHeight - rect.bottom
-        const isBelow = spaceBelow > 260
-        
-        let leftPos = Math.max(16, rect.left + rect.width / 2 - 200)
-        if (leftPos + 400 > window.innerWidth) {
-          leftPos = window.innerWidth - 416
-        }
-
-        setTooltipPos({
-          top: isBelow ? rect.bottom + 14 : Math.max(16, rect.top - 240),
-          left: leftPos,
-          placement: isBelow ? 'bottom' : 'top'
-        })
-      }, 250)
-    } else {
-      setTargetRect(null)
-    }
-  }, [currentStepIndex])
-
-  useEffect(() => {
-    if (!isOpen) return
-    const step = TOUR_STEPS[currentStepIndex]
-    if (step) {
-      setView(step.targetView)
-      const timer = setTimeout(() => {
-        updateTargetPosition()
-      }, 150)
-      return () => clearTimeout(timer)
-    }
-  }, [currentStepIndex, isOpen, updateTargetPosition, setView])
-
-  useEffect(() => {
-    if (!isOpen) return
-    window.addEventListener('resize', updateTargetPosition)
-    window.addEventListener('scroll', updateTargetPosition, true)
-    return () => {
-      window.removeEventListener('resize', updateTargetPosition)
-      window.removeEventListener('scroll', updateTargetPosition, true)
-    }
-  }, [isOpen, updateTargetPosition])
-
-  if (!isOpen) return null
+  const [tooltipPos, setTooltipPos] = useState({ top: 100, left: 100, isBelow: true })
+  const pollTimerRef = useRef(null)
 
   const step = TOUR_STEPS[currentStepIndex]
   const isFirst = currentStepIndex === 0
   const isLast = currentStepIndex === TOUR_STEPS.length - 1
+
+  // Robust element locator with polling to survive React view unmount/mount cycles
+  const locateElement = useCallback(() => {
+    if (!step) return
+
+    let attempts = 0
+    const maxAttempts = 15 // Poll up to ~750ms
+
+    const tryFind = () => {
+      const element = document.querySelector(`[data-tour="${step.targetTourId}"]`)
+      if (element) {
+        // Found element: scroll smoothly into view
+        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+
+        // Allow scroll animation to settle before measuring
+        setTimeout(() => {
+          const rect = element.getBoundingClientRect()
+          setTargetRect({
+            top: Math.max(0, rect.top),
+            left: Math.max(0, rect.left),
+            width: rect.width,
+            height: rect.height,
+            bottom: rect.bottom,
+            right: rect.right
+          })
+
+          // Calculate ideal tooltip placement
+          const cardWidth = Math.min(window.innerWidth - 32, 420)
+          const cardHeight = 240
+          const spaceBelow = window.innerHeight - rect.bottom
+          const isBelow = spaceBelow >= cardHeight || rect.top < cardHeight
+
+          // Center horizontally over target element, bounded by viewport
+          let idealLeft = rect.left + rect.width / 2 - cardWidth / 2
+          idealLeft = Math.max(16, Math.min(idealLeft, window.innerWidth - cardWidth - 16))
+
+          const idealTop = isBelow
+            ? Math.min(window.innerHeight - cardHeight - 16, rect.bottom + 16)
+            : Math.max(16, rect.top - cardHeight - 16)
+
+          setTooltipPos({
+            top: idealTop,
+            left: idealLeft,
+            isBelow
+          })
+        }, 120)
+      } else if (attempts < maxAttempts) {
+        attempts++
+        pollTimerRef.current = setTimeout(tryFind, 50)
+      } else {
+        // Fallback: center in viewport if element is truly missing
+        setTargetRect(null)
+        setTooltipPos({
+          top: Math.max(40, window.innerHeight / 2 - 120),
+          left: Math.max(16, window.innerWidth / 2 - 200),
+          isBelow: true
+        })
+      }
+    }
+
+    tryFind()
+  }, [step])
+
+  // Sync active view and trigger element locator
+  useEffect(() => {
+    if (!isOpen || !step) return
+
+    clearTimeout(pollTimerRef.current)
+    setView(step.targetView)
+
+    // Wait 100ms for React view mounting before looking for DOM node
+    const initTimer = setTimeout(() => {
+      locateElement()
+    }, 100)
+
+    return () => {
+      clearTimeout(initTimer)
+      clearTimeout(pollTimerRef.current)
+    }
+  }, [currentStepIndex, isOpen, step, setView, locateElement])
+
+  // Reposition on window resize or scroll
+  useEffect(() => {
+    if (!isOpen) return
+    const handleReposition = () => locateElement()
+    window.addEventListener('resize', handleReposition)
+    window.addEventListener('scroll', handleReposition, true)
+    return () => {
+      window.removeEventListener('resize', handleReposition)
+      window.removeEventListener('scroll', handleReposition, true)
+    }
+  }, [isOpen, locateElement])
+
+  if (!isOpen || !step) return null
 
   function handleNext() {
     if (isLast) {
@@ -243,53 +275,90 @@ export default function OnboardingTour({ isOpen, onClose }) {
     const element = document.querySelector(`[data-tour="${step.targetTourId}"]`)
     if (element) {
       element.click()
+      setTimeout(() => locateElement(), 200)
     }
   }
 
+  const PADDING = 8
+  const cutoutX = targetRect ? Math.max(0, targetRect.left - PADDING) : 0
+  const cutoutY = targetRect ? Math.max(0, targetRect.top - PADDING) : 0
+  const cutoutW = targetRect ? targetRect.width + PADDING * 2 : 0
+  const cutoutH = targetRect ? targetRect.height + PADDING * 2 : 0
+
   return (
-    <div className="fixed inset-0 z-50 pointer-events-auto">
-      {/* Dark overlay backdrop */}
+    <div className="fixed inset-0 z-50 overflow-hidden pointer-events-auto">
+      {/* ── 1. SVG Backdrop Overlay with Physical Cutout Mask ── */}
+      <svg className="fixed inset-0 w-full h-full pointer-events-none z-40">
+        <defs>
+          <mask id="tour-spotlight-mask">
+            {/* White background: reveals the dark tint */}
+            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {/* Black rectangle cutout: punches a clean hole through to the real button */}
+            {targetRect && (
+              <rect
+                x={cutoutX}
+                y={cutoutY}
+                width={cutoutW}
+                height={cutoutH}
+                rx="16"
+                ry="16"
+                fill="black"
+              />
+            )}
+          </mask>
+        </defs>
+        {/* Full-screen tinted layer with mask cutout */}
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill="rgba(10, 15, 29, 0.82)"
+          mask="url(#tour-spotlight-mask)"
+        />
+      </svg>
+
+      {/* ── 2. Clickable Backdrop (Dismiss on click outside) ── */}
       <div 
-        className="fixed inset-0 bg-slate-950/75 backdrop-blur-[2px] transition-all duration-300"
-        onClick={onClose}
+        className="fixed inset-0 z-40" 
+        onClick={onClose} 
       />
 
-      {/* Spotlight cutout border around focused button */}
+      {/* ── 3. Highlighting Glowing Halo Ring Around Cutout ── */}
       {targetRect && (
         <div
-          className="fixed pointer-events-none rounded-2xl transition-all duration-300 ease-out z-50"
+          className="fixed pointer-events-none rounded-2xl z-50 transition-all duration-300 ease-out"
           style={{
-            top: targetRect.top - 6,
-            left: targetRect.left - 6,
-            width: targetRect.width + 12,
-            height: targetRect.height + 12,
-            boxShadow: '0 0 0 9999px rgba(15, 23, 42, 0.78), 0 0 24px 6px rgba(249, 115, 22, 0.65)',
-            border: '2px solid rgba(249, 115, 22, 0.9)',
+            top: cutoutY,
+            left: cutoutX,
+            width: cutoutW,
+            height: cutoutH,
+            border: '2px solid rgba(249, 115, 22, 0.95)',
+            boxShadow: '0 0 24px 6px rgba(249, 115, 22, 0.55), inset 0 0 12px rgba(249, 115, 22, 0.25)',
           }}
         >
-          {/* Pulsing indicator tag */}
-          <span className="absolute -top-3.5 left-3 px-2 py-0.5 rounded-full bg-orange-500 text-slate-950 font-black text-[10px] uppercase tracking-wider animate-bounce shadow-md">
-            Focus
+          {/* Animated "FOCUS" tag */}
+          <span className="absolute -top-3.5 left-3 px-2 py-0.5 rounded-full bg-orange-500 text-slate-950 font-black text-[10px] uppercase tracking-wider animate-bounce shadow-lg">
+            Focus Here
           </span>
         </div>
       )}
 
-      {/* Floating Guidance Tooltip Card */}
+      {/* ── 4. Anchored Floating Guidance Tooltip Card ── */}
       <div
-        className="fixed z-50 w-full max-w-[390px] sm:max-w-[420px] bg-slate-900/95 border border-slate-700 rounded-3xl shadow-2xl p-5 space-y-3.5 transition-all duration-300 animate-slide-up"
+        className="fixed z-50 w-[calc(100vw-32px)] sm:w-[420px] bg-slate-900/98 border border-slate-700/90 rounded-3xl shadow-2xl p-5 space-y-3.5 transition-all duration-300 ease-out backdrop-blur-xl"
         style={{
-          top: targetRect ? tooltipPos.top : '35%',
-          left: targetRect ? tooltipPos.left : '50%',
-          transform: targetRect ? 'none' : 'translate(-50%, -50%)',
+          top: tooltipPos.top,
+          left: tooltipPos.left,
         }}
       >
-        {/* Step Header */}
+        {/* Step Indicator Header */}
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
             <span>{step.icon}</span>
             <span>{step.badge}</span>
           </span>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[11px] font-mono text-slate-400 font-semibold">
             {currentStepIndex + 1} / {TOUR_STEPS.length}
           </span>
         </div>
@@ -299,34 +368,34 @@ export default function OnboardingTour({ isOpen, onClose }) {
           {step.title[language] || step.title.en}
         </h4>
 
-        {/* Explanation */}
+        {/* Description */}
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
           {step.description[language] || step.description.en}
         </p>
 
-        {/* Button Hint / Interaction Prompt */}
+        {/* Interactive Action Trigger Bar */}
         <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs text-amber-300">
+          <div className="flex items-center gap-1.5 text-xs text-amber-300">
             <span>👉</span>
-            <span className="line-clamp-2 text-[11px] sm:text-xs">
+            <span className="text-[11px] sm:text-xs font-medium">
               {step.buttonHint[language] || step.buttonHint.en}
             </span>
           </div>
           <button
             onClick={handleTryAction}
-            className="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/40 text-[10px] font-bold uppercase whitespace-nowrap transition-colors"
+            className="px-2.5 py-1 rounded-lg bg-orange-500 hover:bg-orange-400 text-slate-950 font-black text-[10px] uppercase whitespace-nowrap shadow-sm shadow-orange-500/30 active:scale-95 transition-all"
           >
             Trigger
           </button>
         </div>
 
         {/* Navigation Buttons */}
-        <div className="pt-1 flex items-center justify-between gap-2">
+        <div className="pt-1 flex items-center justify-between gap-2 border-t border-slate-800">
           <button
             onClick={onClose}
             className="text-xs text-slate-500 hover:text-slate-300 font-semibold px-2 py-1 transition-colors"
           >
-            Skip Tour
+            Exit Tour
           </button>
 
           <div className="flex items-center gap-2">
@@ -340,9 +409,9 @@ export default function OnboardingTour({ isOpen, onClose }) {
             )}
             <button
               onClick={handleNext}
-              className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-slate-950 text-xs font-black shadow-md shadow-orange-500/20 transition-all flex items-center gap-1"
+              className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-slate-950 text-xs font-black shadow-md shadow-orange-500/20 active:scale-95 transition-all flex items-center gap-1"
             >
-              <span>{isLast ? 'Finish Tour ✓' : 'Next Step →'}</span>
+              <span>{isLast ? 'Complete ✓' : 'Next Step →'}</span>
             </button>
           </div>
         </div>
